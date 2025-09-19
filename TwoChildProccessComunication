@@ -1,0 +1,40 @@
+#include <unistd.h>
+#include <string.h>
+#include <stdio.h> 
+
+int main() {
+    int fd1[2];    
+    int fd2[2];
+    pid_t pid1;
+    pid_t pid2;
+    char mensajehijo1[] = "Hola Hijo 1 desde el padre!";
+    char mensajehijo2[] = "Hola Hijo 2 desde el padre!";
+    char buffer[100];
+
+    pipe(fd1);               
+    pid1 = fork(); 
+    
+    if (pid1 > 0) {          
+        close(fd1[0]);      
+        write(fd1[1], mensajehijo1, strlen(mensajehijo1) + 1);
+        close(fd1[1]);
+    } else {                
+        close(fd1[1]);       
+        read(fd1[0], buffer, sizeof(buffer));
+        printf("Hijo1 recibió: %s\n", buffer);
+        close(fd1[0]);
+    }
+    pipe(fd2); 
+    pid2 = fork();
+    if (pid2 > 0) {          
+        close(fd2[0]);      
+        write(fd2[1], mensajehijo2, strlen(mensajehijo2) + 1);
+        close(fd2[1]);
+    } else {                
+        close(fd2[1]);       
+        read(fd2[0], buffer, sizeof(buffer));
+        printf("Hijo2 recibió: %s\n", buffer);
+        close(fd2[0]);
+    }
+    return 0;
+}
